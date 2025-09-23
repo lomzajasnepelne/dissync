@@ -41,7 +41,7 @@ pub enum Pld {
 }
 
 pub struct Msg {
-    sender_id: NodeId,
-    exchange_id: ExchangeId,
-    pld: Pld,
+    pub sender_id: NodeId,
+    pub exchange_id: ExchangeId,
+    pub pld: Pld,
 }

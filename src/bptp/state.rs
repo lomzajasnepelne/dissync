@@ -1,55 +1,23 @@
 use crate::timestamp::Timestamp;
 
-pub struct WaitForSync;
-
 pub struct WaitForSyncFollowUp {
-    sync_rcvd: Timestamp,
-}
-
-impl WaitForSyncFollowUp {
-    pub fn from_previous(_prev: WaitForSync, sync_rcvd: Timestamp) -> Self {
-        Self { sync_rcvd }
-    }
+    pub sync_rcvd: Timestamp,
 }
 
 pub struct WaitForDelayReq {
-    sync_sent: Timestamp,
+    pub sync_sent: Timestamp,
 }
 
 pub struct WaitForDelayReqFollowUp {
-    sync_sent: Timestamp,
-    sync_rcvd: Timestamp,
-    delay_req_rcvd: Timestamp,
-}
-
-impl WaitForDelayReqFollowUp {
-    pub fn from_previous(
-        prev: WaitForDelayReq,
-        sync_rcvd: Timestamp,
-        delay_req_rcvd: Timestamp,
-    ) -> Self {
-        Self { sync_sent: prev.sync_sent, sync_rcvd, delay_req_rcvd }
-    }
+    pub sync_sent: Timestamp,
+    pub sync_rcvd: Timestamp,
+    pub delay_req_rcvd: Timestamp,
 }
 
 pub struct WaitForDelayResp {
-    sync_sent: Timestamp,
-    sync_rcvd: Timestamp,
-    delay_req_sent: Timestamp,
-}
-
-impl WaitForDelayResp {
-    pub fn from_previous(
-        prev: WaitForSyncFollowUp,
-        sync_sent: Timestamp,
-        delay_req_sent: Timestamp,
-    ) -> Self {
-        Self {
-            sync_sent,
-            sync_rcvd: prev.sync_rcvd,
-            delay_req_sent,
-        }
-    }
+    pub sync_sent: Timestamp,
+    pub sync_rcvd: Timestamp,
+    pub delay_req_sent: Timestamp,
 }
 
 pub struct RequesterDone {
@@ -99,19 +67,20 @@ impl ResponderDone {
 }
 
 pub enum RequesterState {
+    Idle,
     WaitForDelayReq(WaitForDelayReq),
     WaitForDelayReqFollowUp(WaitForDelayReqFollowUp),
     Done(RequesterDone),
 }
 
 impl RequesterState {
-    pub fn new(sync_sent: Timestamp) -> Self {
-        Self::WaitForDelayReq(WaitForDelayReq { sync_sent })
+    pub fn new() -> Self {
+        Self::Idle
     }
 }
 
 pub enum ResponderState {
-    WaitForSync(WaitForSync),
+    WaitForSync,
     WaitForSyncFollowUp(WaitForSyncFollowUp),
     WaitForDelayResp(WaitForDelayResp),
     Done(ResponderDone),
@@ -119,7 +88,7 @@ pub enum ResponderState {
 
 impl ResponderState {
     pub fn new() -> Self {
-        Self::WaitForSync(WaitForSync {})
+        Self::WaitForSync
     }
 }
 
