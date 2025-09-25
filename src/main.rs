@@ -166,3 +166,13 @@ fn example_exchange() {
 fn main() {
     example_exchange();
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn example_exchange_does_not_panic() {
+        example_exchange();
+    }
+}
