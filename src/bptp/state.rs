@@ -25,45 +25,9 @@ pub struct RequesterDone {
     pub resp_to_req_delta: Timestamp,
 }
 
-impl RequesterDone {
-    pub fn from_previous(
-        prev: WaitForDelayReqFollowUp,
-        delay_req_sent: Timestamp,
-    ) -> Self {
-        let req_to_resp = prev.sync_rcvd.time_ns - prev.sync_sent.time_ns;
-        let resp_to_req = prev.delay_req_rcvd.time_ns - delay_req_sent.time_ns;
-        Self {
-            req_to_resp_delta: Timestamp {
-                time_ns: req_to_resp,
-            },
-            resp_to_req_delta: Timestamp {
-                time_ns: resp_to_req,
-            },
-        }
-    }
-}
-
 pub struct ResponderDone {
     pub req_to_resp_delta: Timestamp,
     pub resp_to_req_delta: Timestamp,
-}
-
-impl ResponderDone {
-    pub fn from_previous(
-        prev: WaitForDelayResp,
-        delay_req_rcvd: Timestamp,
-    ) -> Self {
-        let req_to_resp = prev.sync_rcvd.time_ns - prev.sync_sent.time_ns;
-        let resp_to_req = delay_req_rcvd.time_ns - prev.delay_req_sent.time_ns;
-        Self {
-            req_to_resp_delta: Timestamp {
-                time_ns: req_to_resp,
-            },
-            resp_to_req_delta: Timestamp {
-                time_ns: resp_to_req,
-            },
-        }
-    }
 }
 
 pub enum RequesterState {
@@ -76,6 +40,12 @@ pub enum RequesterState {
 impl RequesterState {
     pub fn new() -> Self {
         Self::Idle
+    }
+}
+
+impl Default for RequesterState {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

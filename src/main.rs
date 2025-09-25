@@ -2,9 +2,8 @@ use std::{sync::mpsc, thread};
 
 use dissync::{
     bptp::{
-        self,
-        msg::{self, Msg, NodeId, RespToReqPld},
-        state::{self, RequesterState, ResponderState, WaitForDelayResp},
+        msg::{self, ReqToRespPld, RespToReqPld},
+        state::{self, RequesterState, ResponderState},
     },
     timestamp::Timestamp,
 };
@@ -42,9 +41,39 @@ fn example_requester(
                 state = RequesterState::WaitForDelayReqFollowUp(state_info);
             }
             RequesterState::WaitForDelayReqFollowUp(state_info) => {
-                return;
+                let rx_pld = rx.recv().unwrap();
+                let delay_req_fup = match rx_pld {
+                    RespToReqPld::DelayReqFollowUp(d) => d,
+                    _ => panic!(),
+                };
+                let delay_resp = msg::DelayResp {
+                    delay_req_rcvd: state_info.delay_req_rcvd,
+                };
+                let tx_pld = ReqToRespPld::DelayResp(delay_resp);
+                tx.send(tx_pld).unwrap();
+                let req_to_resp_delta =
+                    state_info.sync_rcvd.time_ns - state_info.sync_sent.time_ns;
+                let resp_to_req_delta = state_info.delay_req_rcvd.time_ns
+                    - delay_req_fup.delay_req_sent.time_ns;
+                let state_info = state::RequesterDone {
+                    req_to_resp_delta: Timestamp {
+                        time_ns: req_to_resp_delta,
+                    },
+                    resp_to_req_delta: Timestamp {
+                        time_ns: resp_to_req_delta,
+                    },
+                };
+                state = RequesterState::Done(state_info);
             }
             RequesterState::Done(state_info) => {
+                println!(
+                    "Requester calculated responder to requester delta: {} ns",
+                    state_info.resp_to_req_delta.time_ns
+                );
+                println!(
+                    "Requester calculated requester to responder delta: {} ns",
+                    state_info.req_to_resp_delta.time_ns
+                );
                 return;
             }
         }
@@ -90,10 +119,35 @@ fn example_responder(
                 };
                 state = ResponderState::WaitForDelayResp(state_info);
             }
-            ResponderState::WaitForDelayResp(_) => {
-                return;
+            ResponderState::WaitForDelayResp(state_info) => {
+                let pld = rx.recv().unwrap();
+                let delay_resp = match pld {
+                    msg::ReqToRespPld::DelayResp(d) => d,
+                    _ => panic!(),
+                };
+                let req_to_resp_delta =
+                    state_info.sync_rcvd.time_ns - state_info.sync_sent.time_ns;
+                let resp_to_req_delta = delay_resp.delay_req_rcvd.time_ns
+                    - state_info.delay_req_sent.time_ns;
+                let state_info = state::ResponderDone {
+                    req_to_resp_delta: Timestamp {
+                        time_ns: req_to_resp_delta,
+                    },
+                    resp_to_req_delta: Timestamp {
+                        time_ns: resp_to_req_delta,
+                    },
+                };
+                state = ResponderState::Done(state_info);
             }
-            ResponderState::Done(_) => {
+            ResponderState::Done(state_info) => {
+                println!(
+                    "Responder calculated responder to requester delta: {} ns",
+                    state_info.resp_to_req_delta.time_ns
+                );
+                println!(
+                    "Responder calculated requester to responder delta: {} ns",
+                    state_info.req_to_resp_delta.time_ns
+                );
                 return;
             }
         }
