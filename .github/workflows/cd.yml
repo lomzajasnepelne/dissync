@@ -10,7 +10,16 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  style-check:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: clippy and format
+      run: ./run.sh style
+
+  test:
 
     runs-on: ubuntu-latest
 
@@ -18,7 +27,5 @@ jobs:
     - uses: actions/checkout@v4
     - name: rust test
       run: ./run.sh test-rs
-    - name: clippy and format
-      run: ./run.sh style
     - name: python test
       run: ./run.sh test-py
