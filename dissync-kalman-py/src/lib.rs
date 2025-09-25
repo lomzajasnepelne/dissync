@@ -8,7 +8,7 @@ fn filter(a: Vec<u32>) -> PyResult<Vec<u32>> {
 }
 
 #[pymodule]
-fn dissync_kalman_report(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn dissync_kalman_py(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(filter, m)?)?;
     Ok(())
 }

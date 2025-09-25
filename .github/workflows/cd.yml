@@ -16,9 +16,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Test
+    - name: cargo test
       run: cargo test --workspace --verbose
-    - name: Clippy
+    - name: clippy
       run: cargo clippy --workspace -- -D warnings
-    - name: Fmt
+    - name: cargo fmt
       run: cargo fmt --all --check
+    - name: python test
+      run: |
+           python3 -m venv .venv
+           . .venv/bin/activate
+           pip install maturin
+           maturin develop -m dissync-kalman-py/Cargo.toml
+           python3 -c "import dissync_kalman_py; print(dissync_kalman_py)"
