@@ -16,16 +16,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: cargo test
-      run: cargo test --workspace --verbose
-    - name: clippy
-      run: cargo clippy --workspace -- -D warnings
-    - name: cargo fmt
-      run: cargo fmt --all --check
+    - name: rust test
+      run: ./run.sh test-rs
+    - name: clippy and format
+      run: ./run.sh style
     - name: python test
-      run: |
-           python3 -m venv .venv
-           . .venv/bin/activate
-           pip install maturin
-           maturin develop -m dissync-kalman-py/Cargo.toml
-           python3 -c "import dissync_kalman_py; print(dissync_kalman_py)"
+      run: ./run.sh test-py
