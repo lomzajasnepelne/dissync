@@ -1,0 +1,33 @@
+[project]
+name = "dissync-kalman-report"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "lomzajasnepelne",email = "175972444+lomzajasnepelne@users.noreply.github.com"}
+]
+requires-python = ">=3.11"
+dependencies = [
+]
+
+[tool.poetry]
+packages = [{include = "dissync_kalman_report", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+test = [
+    "pytest (>=8.4.2,<9.0.0)"
+]
+dev = [
+    "mypy (>=1.18.2,<2.0.0)"
+]
+
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["dissync_kalman_py.*"]
+ignore_missing_imports = true
+

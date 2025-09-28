@@ -1,11 +1,18 @@
 #!/bin/bash
 set -e
 
-prepare_py_module() {
+setup_python_env () {
     python3 -m venv .venv
     . .venv/bin/activate
+    pip install -U setuptools
     pip install maturin
+    pip install poetry
+}
+
+prepare_py_module() {
+    . .venv/bin/activate
     maturin develop -m dissync-kalman-py/Cargo.toml
+    poetry -C dissync-kalman-report install
 }
 
 test_rs() {
@@ -14,7 +21,8 @@ test_rs() {
 
 test_py() {
     prepare_py_module
-    python3 -c "import dissync_kalman_py; print(dissync_kalman_py)"
+    poetry -C dissync-kalman-report run mypy .
+    poetry -C dissync-kalman-report run pytest
 }
 
 check_style() {
@@ -27,6 +35,10 @@ format() {
 }
 
 case $1 in
+
+  setup-py)
+    setup_python_env
+    ;;
 
   test-rs)
     test_rs
