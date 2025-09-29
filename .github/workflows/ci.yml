@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: python setup
+      run: ./run.sh setup-py
     - name: clippy and format
       run: ./run.sh style
 

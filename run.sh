@@ -26,17 +26,20 @@ test_py() {
 }
 
 check_style() {
+    prepare_py_module
     cargo clippy --workspace -- -D warnings
     cargo fmt --all --check
+    poetry -C dissync-kalman-report run black . --diff --check
 }
 
 format() {
     cargo fmt --all
+    poetry -C dissync-kalman-report run black .
 }
 
 report() {
   mkdir -p report
-  poetry -P dissync-kalman-report run python3 -m dissync_kalman_report ./report
+  poetry -C dissync-kalman-report run python3 -m dissync_kalman_report ./report
 }
 
 case $1 in
