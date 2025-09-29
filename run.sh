@@ -34,6 +34,11 @@ format() {
     cargo fmt --all
 }
 
+report() {
+  mkdir -p report
+  poetry -P dissync-kalman-report run python3 -m dissync_kalman_report ./report
+}
+
 case $1 in
 
   setup-py)
@@ -61,10 +66,15 @@ case $1 in
     format
     ;;
 
+  report)
+    report
+    ;;
+
   all)
     check_style
     test_rs
     test_py
+    report
     ;;
 
   *)
