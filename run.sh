@@ -7,10 +7,6 @@ setup_python_env () {
     pip install -U setuptools
     pip install maturin
     pip install poetry
-}
-
-prepare_py_module() {
-    . .venv/bin/activate
     maturin develop -m dissync-kalman-py/Cargo.toml
     poetry -C dissync-kalman-report install
 }
@@ -20,26 +16,28 @@ test_rs() {
 }
 
 test_py() {
-    prepare_py_module
+    . .venv/bin/activate
     poetry -C dissync-kalman-report run mypy .
     poetry -C dissync-kalman-report run pytest
 }
 
 check_style() {
-    prepare_py_module
+    . .venv/bin/activate
     cargo clippy --workspace -- -D warnings
     cargo fmt --all --check
     poetry -C dissync-kalman-report run black . --diff --check
 }
 
 format() {
+    . .venv/bin/activate
     cargo fmt --all
     poetry -C dissync-kalman-report run black .
 }
 
 report() {
+  . .venv/bin/activate
   mkdir -p report
-  poetry -C dissync-kalman-report run python3 -m dissync_kalman_report ./report
+  poetry -C dissync-kalman-report run python3 -m dissync_kalman_report ../report/plot.png
 }
 
 case $1 in
